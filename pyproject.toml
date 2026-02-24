@@ -1,0 +1,45 @@
+ [project]
+ name = "elo-multiple"
+ version = "0.1.0"
+ description = "Dashboard Elo multi-jeux (belote, tarot) avec moteur générique et UI Streamlit."
+ authors = [{ name = "Elo App" }]
+ readme = "README.md"
+ requires-python = ">=3.11"
+ dependencies = [
+     "streamlit>=1.31",
+ ]
+
+ [project.optional-dependencies]
+ dev = [
+     "pytest>=7.4",
+     "pytest-cov>=4.1",
+     "ruff>=0.3",
+     "black>=23.12",
+     "hypothesis>=6.98",
+ ]
+
+ [build-system]
+ requires = ["setuptools>=67", "wheel"]
+ build-backend = "setuptools.build_meta"
+
+ [tool.pytest.ini_options]
+ addopts = "--cov=elo_app --cov=tests --cov-report=term-missing --cov-fail-under=100"
+ testpaths = ["tests"]
+ filterwarnings = [
+     "error",
+ ]
+
+ [tool.ruff]
+ line-length = 100
+ target-version = "py311"
+ select = ["E", "F", "I", "B", "UP", "ANN", "C4", "SIM"]
+ ignore = []
+ src = ["elo_app", "tests"]
+ exclude = []
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.coverage.run]
+omit = ["elo_app/ui/*"]

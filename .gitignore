@@ -1,0 +1,40 @@
+# Byte-compiled / cached files
+__pycache__/
+*.py[cod]
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Python packaging
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Local data / cache
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# IDE/Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local app/db artifacts
+*.sqlite
+*.db
+elo_app.db
+
+# Streamlit
+*/.streamlit/
+
+# Envloader outputs
+.env.json.lock
