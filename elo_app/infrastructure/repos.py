@@ -338,6 +338,14 @@ class SQLiteRepository:
         self.conn.execute("UPDATE groups SET name=? WHERE id=?", (new_name, group_id))
         self.conn.commit()
 
+    def add_group_members(self, group_id: str, member_ids: list[str]) -> None:
+        # Ignore duplicates; primary key prevents double inserts.
+        self.conn.executemany(
+            "INSERT OR IGNORE INTO group_members(group_id, player_id) VALUES (?, ?)",
+            [(group_id, pid) for pid in member_ids],
+        )
+        self.conn.commit()
+
     def delete_group(self, group_id: str) -> None:
         # Remove rounds tied to matches of this group to avoid orphaned data.
         match_ids = [m.id for m in self.list_matches(group_id)]

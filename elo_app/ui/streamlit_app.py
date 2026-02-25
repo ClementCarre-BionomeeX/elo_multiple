@@ -33,6 +33,7 @@ def _get_service() -> tuple[RatingService, Any]:
             "get_current_player_stats",
             "delete_group",
             "rename_group",
+            "add_players_to_group",
         )
     )
     if needs_refresh:
@@ -747,6 +748,43 @@ def page_home():
                         st.error(str(exc))
                 else:
                     st.error("Sélectionnez un groupe et saisissez un nom.")
+
+            st.markdown("##### Ajouter des joueurs à un groupe")
+            add_cols = st.columns([1, 1.2])
+            with add_cols[0]:
+                group_to_extend = _select_box(
+                    "Groupe", groups, key_field="id", key="extend_group"
+                )
+            with add_cols[1]:
+                if group_to_extend:
+                    existing_members = {
+                        row["player_id"]
+                        for row in _fetch_rows(
+                            conn,
+                            "SELECT player_id FROM group_members WHERE group_id=?",
+                            (group_to_extend,),
+                        )
+                    }
+                    available_players = [p for p in players if p["id"] not in existing_members]
+                else:
+                    existing_members = set()
+                    available_players = players
+                new_member_ids = st.multiselect(
+                    "Joueurs à ajouter",
+                    [p["id"] for p in available_players],
+                    format_func=lambda pid: player_lookup.get(pid, pid),
+                    key="extend_group_members",
+                )
+            if st.button("Ajouter au groupe"):
+                if group_to_extend and new_member_ids:
+                    try:
+                        service.add_players_to_group(group_to_extend, new_member_ids)
+                        st.success("Joueurs ajoutés au groupe.")
+                        st.rerun()
+                    except ValueError as exc:
+                        st.error(str(exc))
+                else:
+                    st.error("Sélectionnez un groupe et au moins un joueur.")
 
             st.markdown("##### Exporter les données")
             db_path = Path("elo_app.db")

@@ -93,6 +93,11 @@ class RatingService:
             raise ValueError("Le nom ne peut pas être vide.")
         self.repo.rename_group(group_id, new_name.strip())
 
+    def add_players_to_group(self, group_id: str, player_ids: list[str]) -> None:
+        if not player_ids:
+            raise ValueError("Aucun joueur sélectionné.")
+        self.repo.add_group_members(group_id, player_ids)
+
     # Rating computation -----------------------------------------------
     def add_round(self, match_id: str, teams: list[Team], outcome: Outcome) -> RatingEvent:
         match = self.repo.get_match(match_id)
