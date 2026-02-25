@@ -82,6 +82,17 @@ class RatingService:
             return
         self.repo.set_match_end(match_id, datetime.now(timezone.utc))
 
+    def delete_group(self, group_id: str) -> None:
+        open_matches = [m for m in self.repo.list_matches(group_id) if m.ended_at is None]
+        if open_matches:
+            raise ValueError("Impossible de supprimer : une session est encore ouverte pour ce groupe.")
+        self.repo.delete_group(group_id)
+
+    def rename_group(self, group_id: str, new_name: str) -> None:
+        if not new_name.strip():
+            raise ValueError("Le nom ne peut pas être vide.")
+        self.repo.rename_group(group_id, new_name.strip())
+
     # Rating computation -----------------------------------------------
     def add_round(self, match_id: str, teams: list[Team], outcome: Outcome) -> RatingEvent:
         match = self.repo.get_match(match_id)

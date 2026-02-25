@@ -333,3 +333,22 @@ class SQLiteRepository:
             (group_id,),
         )
         return [row["player_id"] for row in cur.fetchall()]
+
+    def rename_group(self, group_id: str, new_name: str) -> None:
+        self.conn.execute("UPDATE groups SET name=? WHERE id=?", (new_name, group_id))
+        self.conn.commit()
+
+    def delete_group(self, group_id: str) -> None:
+        # Remove rounds tied to matches of this group to avoid orphaned data.
+        match_ids = [m.id for m in self.list_matches(group_id)]
+        if match_ids:
+            placeholders = ",".join("?" for _ in match_ids)
+            self.conn.execute(f"DELETE FROM rounds WHERE match_id IN ({placeholders})", match_ids)
+
+        # Remove ratings and history scoped to the group.
+        self.conn.execute("DELETE FROM rating_events WHERE group_id=?", (group_id,))
+        self.conn.execute("DELETE FROM ratings_current WHERE group_id=?", (group_id,))
+        self.conn.execute("DELETE FROM matches WHERE group_id=?", (group_id,))
+        self.conn.execute("DELETE FROM group_members WHERE group_id=?", (group_id,))
+        self.conn.execute("DELETE FROM groups WHERE id=?", (group_id,))
+        self.conn.commit()
